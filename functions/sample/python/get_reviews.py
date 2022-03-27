@@ -3,7 +3,7 @@ from ibmcloudant.cloudant_v1 import CloudantV1
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 
 def main(dict):
-    
+    print(dict)
     status_code = 200
     resp = ''
     headers = {'Content-Type':'application/json'}
@@ -16,7 +16,7 @@ def main(dict):
     try:
         resp = service.post_find(
             db='reviews',
-            selector={'dealership': {'$eq': int(dict["id"])}},
+            selector={'dealership': {'$eq': int(dict["dealerId"])}},
         ).get_result()
     
         if len(resp['docs']) == 0:
