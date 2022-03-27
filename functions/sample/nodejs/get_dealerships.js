@@ -24,8 +24,6 @@ async function main(params) {
     let headers = { 'Content-Type': 'application/json' };
     let resp = '';
     
-    // const dealershipDB = await cloudant.use('dealerships');
-    
     if (params.state) {
         try {
             resp = await cloudant.use('dealerships').find({
@@ -36,16 +34,27 @@ async function main(params) {
                 }
             });
             
+            if (resp.docs.length==0) {
+                status_code = 404;
+            }
+            
         } catch (error) {
-            return { error: error.description } ;
+            resp = error.description;
+            status_code = 500
         }
     }
+
     else {
         try {
             resp =  await cloudant.use('dealerships').list({ include_docs: true });
             
+            if (resp.rows.length==0) {
+                status_code = 404;
+            }
+            
         } catch (error) {
-            return { error: error.description } ;
+            resp = error.description;
+            status_code = 500
         }
     }
     
