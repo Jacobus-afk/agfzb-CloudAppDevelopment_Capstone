@@ -143,7 +143,7 @@ def add_review(request, dealer_id):
         return redirect("djangoapp:index")
     
     url = "https://399ca718.eu-gb.apigw.appdomain.cloud/api/review"
-    context = {}
+    # context = {}
     # json_payload = {}
 
     # json_payload['review'] = {
@@ -155,24 +155,40 @@ def add_review(request, dealer_id):
 
     if request.method == 'POST':
 
-        json_payload['review'] = {
-            'time': datetime.utcnow().isoformat(),
-            'name': request.user.username,
-            'dealership': dealer_id,
-            'car_year': car.year.strftime("%Y")
-        #     'review': "This capstone project sucks.. It needs to be proofread.. I'm not a mindreader, I don't know how the lecturer intends for the parts to work together. Not a great motivator for using IBM cloud after this course is completed tbh.."
+        print(request.POST)
+        car = CarModel.objects.filter(id=request.POST['car'])[0]
+        purchasecheck = request.POST.get('purchasecheck', '')
+        purchase = True if purchasecheck == 'on' else False
+
+        json_payload = {
+            'review': {
+                'dealership': dealer_id,
+                'name': request.user.username,
+                'purchase': purchase,
+                'review': request.POST['content'],
+                'purchase_date': request.POST['purchasedate'],
+                'car_make': car.carmake.name,
+                'car_model': car.name,
+                'car_year': car.year.strftime("%Y"),
+                'id': request.POST['car'],
+                'time': datetime.utcnow().isoformat(),
+            #     'review': "This capstone project sucks.. It needs to be proofread.. I'm not a mindreader, I don't know how the lecturer intends for the parts to work together. Not a great motivator for using IBM cloud after this course is completed tbh.."
+            }
         }
+        print(json_payload)
 
         resp = post_request(url, json_payload)
+        print(resp)
 
-        return HttpResponse(resp)
+        return redirect("djangoapp:dealer_details", dealer_id=dealer_id)
 
     cars = CarModel.objects.filter(dealer_id=dealer_id)
     dealership = get_dealers_from_cf(dealer_id)
 
-
-    context['cars'] = cars
-    context['dealer_id'] = dealer_id
-    context['dealer_name'] = dea
+    context = {
+        'cars': cars,
+        'dealer_id': dealer_id,
+        'dealer_name': dealership['full_name'],
+    }
 
     return render(request, 'djangoapp/add_review.html', context)
