@@ -64,4 +64,30 @@ class CarDealer:
     def __str__(self):
         return "Dealer name: " + self.full_name
 
+class DealerReview:
+    def __init__(self, **kwargs):
+        dealership = kwargs.get('dealership','')
+        name = kwargs.get('name','')
+        purchase = kwargs.get('purchase','')
+        review = kwargs.get('review','')
+        purchase_date = kwargs.get('purchase_date','')
+        car_make = kwargs.get('car_make','')
+        car_model = kwargs.get('car_model','')
+        car_year = kwargs.get('car_year','')
+        sentiment = kwargs.get('sentiment','')
+        id = kwargs.get('id','')
+
+        self.dealership = dealership
+        self.name = name
+        self.purchase = purchase
+        self.review = review
+        self.purchase_date = purchase_date
+        self.car_make = car_make
+        self.car_model = car_model
+        self.car_year = car_year
+        self.sentiment = sentiment
+        self.id = id
+    def __str__(self):
+        return f"Name: {self.name}, Dealership: {self.dealership}"
+
 # <HINT> Create a plain Python class `DealerReview` to hold review data

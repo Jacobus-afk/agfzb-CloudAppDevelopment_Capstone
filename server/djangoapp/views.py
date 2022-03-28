@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 
-from djangoapp.restapis import get_dealers_from_cf
+from djangoapp.restapis import get_dealers_from_cf, get_dealer_reviews_from_cf
 
 from datetime import datetime
 import logging
@@ -98,7 +98,13 @@ def get_dealerships(request):
 # Create a `get_dealer_details` view to render the reviews of a dealer
 # def get_dealer_details(request, dealer_id):
 # ...
+def get_dealer_details(request, dealer_id):
+    if request.method == "GET":
+        url = "https://399ca718.eu-gb.apigw.appdomain.cloud/api/review"
+        dealer_reviews = get_dealer_reviews_from_cf(url, dealer_id)
 
+        reviews = ' '.join([review.review for review in dealer_reviews])
+        return HttpResponse(reviews)
 # Create a `add_review` view to submit a review
 # def add_review(request, dealer_id):
 # ...
