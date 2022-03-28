@@ -86,15 +86,27 @@ def registration_request(request):
 
 def get_dealerships(request):
     if request.method == "GET":
+        context = {}
         url = "https://399ca718.eu-gb.apigw.appdomain.cloud/api/dealership"
         # Get dealers from the URL
         dealerships = get_dealers_from_cf(url)
+        context['dealership_list'] = dealerships
+        context['dealership_table'] = {
+            'id': 'ID',
+            'full_name': 'Dealer Name',
+            'city': 'City',
+            'address': 'Address',
+            'zip': 'Zip',
+            'st': 'State',
+        }
         # Concat all dealer's short name
-        for dealer in dealerships:
-            print(dealer.full_name)
-        dealer_names = ' '.join([dealer.short_name for dealer in dealerships])
+        # for dealer in dealerships:
+        #     print(dealer["full_name"])
+        # dealer_names = ' '.join([dealer.short_name for dealer in dealerships])
+
+        return render(request, 'djangoapp/index.html', context)
         # Return a list of dealer short name
-        return HttpResponse(dealer_names)
+        # return HttpResponse(dealer_names)
 # Create a `get_dealer_details` view to render the reviews of a dealer
 # def get_dealer_details(request, dealer_id):
 # ...

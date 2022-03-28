@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.timezone import now
 
+# from dataclasses import dataclass
 
 # Create your models here.
 
@@ -39,9 +40,22 @@ class CarModel(models.Model):
     def __str__(self):
         return self.name + ": " + str(self.carmake)
 # <HINT> Create a plain Python class `CarDealer` to hold dealer data
+
+# @dataclass
+# class CarDealer:
+#     address:str
+#     city:str
+#     full_name:str
+#     id:int
+#     lat:str
+#     long:str
+#     short_name:str
+#     st:str
+#     zip:str
+
 class CarDealer:
 
-    def __init__(self, address, city, full_name, tid, lat, long, short_name, st, tzip):
+    def __init__(self, address, city, full_name, id, lat, long, short_name, st, zip):
         # Dealer address
         self.address = address
         # Dealer city
@@ -49,7 +63,7 @@ class CarDealer:
         # Dealer Full Name
         self.full_name = full_name
         # Dealer id
-        self.id = tid
+        self.id = id
         # Location lat
         self.lat = lat
         # Location long
@@ -59,7 +73,7 @@ class CarDealer:
         # Dealer state
         self.st = st
         # Dealer zip
-        self.zip = tzip
+        self.zip = zip
 
     def __str__(self):
         return "Dealer name: " + self.full_name
@@ -75,7 +89,7 @@ class DealerReview:
         car_model = kwargs.get('car_model','')
         car_year = kwargs.get('car_year','')
         sentiment = kwargs.get('sentiment','')
-        tid = kwargs.get('id','')
+        id = kwargs.get('id','')
 
         self.dealership = dealership
         self.name = name
@@ -86,7 +100,7 @@ class DealerReview:
         self.car_model = car_model
         self.car_year = car_year
         self.sentiment = sentiment
-        self.id = tid
+        self.id = id
 
     def __str__(self):
         return f"Review: {self.review}, Sentiment: {self.sentiment}"

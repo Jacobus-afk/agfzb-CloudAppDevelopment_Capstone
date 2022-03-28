@@ -1,9 +1,46 @@
 {% extends "djangoapp/base.html" %}
 
-{% block title %}Dealership Review{% endblock %}
+{% load djangoapp_tags %}
+
+{% block title %}Dealerships{% endblock %}
 
 {% block content%}
     <h1>
         Index page
     </h1>
+
+    <table class="table" id="table" data-filter-control="true">
+        <thead>
+            <tr>
+                {% for key, val in dealership_table.items %}
+                    {% if key == 'st' %}
+                        <th data-field="st" data-filter-control="select">State</th>
+                    {% else %}
+                        <th data-field="{{ key }}">{{ val }}</th>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for dealer in dealership_list %}
+                <tr>
+                    {% for key, val in dealership_table.items %}
+                        {% if key == 'full_name' %}
+                            <td><a href="{% url 'djangoapp:dealer_details' dealer.id %}">{{ dealer|get_obj_attr:key }}</a></td>
+                        {% else %}
+                            <td>{{ dealer|get_obj_attr:key }}</td>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+    $(function() {
+        $('#table').bootstrapTable()
+    })
+    </script>
 {% endblock %}
