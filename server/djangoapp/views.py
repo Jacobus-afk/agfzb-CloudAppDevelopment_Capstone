@@ -8,6 +8,7 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 
 from djangoapp.restapis import get_dealers_from_cf, get_dealer_reviews_from_cf, post_request
+from djangoapp.models import CarModel
 
 from datetime import datetime
 import logging
@@ -85,26 +86,27 @@ def registration_request(request):
 #         return render(request, 'djangoapp/index.html', context)
 
 def get_dealerships(request):
-    if request.method == "GET":
-        context = {}
-        url = "https://399ca718.eu-gb.apigw.appdomain.cloud/api/dealership"
-        # Get dealers from the URL
-        dealerships = get_dealers_from_cf(url)
-        context['dealership_list'] = dealerships
-        context['dealership_table'] = {
-            'id': 'ID',
-            'full_name': 'Dealer Name',
-            'city': 'City',
-            'address': 'Address',
-            'zip': 'Zip',
-            'st': 'State',
-        }
-        # Concat all dealer's short name
-        # for dealer in dealerships:
-        #     print(dealer["full_name"])
-        # dealer_names = ' '.join([dealer.short_name for dealer in dealerships])
+    if request.method != "GET":
+        return redirect('djangoapp:index')
 
-        return render(request, 'djangoapp/index.html', context)
+    context = {}
+    # Get dealers from the URL
+    dealerships = get_dealers_from_cf()
+    context['dealership_list'] = dealerships
+    context['dealership_table'] = {
+        'id': 'ID',
+        'full_name': 'Dealer Name',
+        'city': 'City',
+        'address': 'Address',
+        'zip': 'Zip',
+        'st': 'State',
+    }
+    # Concat all dealer's short name
+    # for dealer in dealerships:
+    #     print(dealer["full_name"])
+    # dealer_names = ' '.join([dealer.short_name for dealer in dealerships])
+
+    return render(request, 'djangoapp/index.html', context)
         # Return a list of dealer short name
         # return HttpResponse(dealer_names)
 # Create a `get_dealer_details` view to render the reviews of a dealer
@@ -114,16 +116,25 @@ def get_dealerships(request):
 
 
 def get_dealer_details(request, dealer_id):
-    if request.method == "GET":
-        url = "https://399ca718.eu-gb.apigw.appdomain.cloud/api/review"
-        dealer_reviews = get_dealer_reviews_from_cf(url, dealer_id)
+    if request.method != "GET":
+        return redirect('djangoapp:index')
 
-        review_list = []
-        # reviews = ' '.join([review.review for review in dealer_reviews])
-        for review in dealer_reviews:
-            review_list.append(f"{review}<br>")
+    dealership = get_dealers_from_cf(dealer_id)
 
-        return HttpResponse(review_list)
+    
+    dealer_reviews = get_dealer_reviews_from_cf(dealer_id)
+    context = {
+        'review_list': dealer_reviews,
+        'dealer_id': dealer_id,
+        'dealer_name': dealership["full_name"]
+    }
+
+    # review_list = []
+    # # reviews = ' '.join([review.review for review in dealer_reviews])
+    # for review in dealer_reviews:
+    #     review_list.append(f"{review}<br>")
+    return render(request, 'djangoapp/dealer_details.html', context)
+        # return HttpResponse(review_list)
 # Create a `add_review` view to submit a review
 # def add_review(request, dealer_id):
 # ...
@@ -132,16 +143,36 @@ def add_review(request, dealer_id):
         return redirect("djangoapp:index")
     
     url = "https://399ca718.eu-gb.apigw.appdomain.cloud/api/review"
+    context = {}
+    # json_payload = {}
 
-    json_payload = {}
+    # json_payload['review'] = {
+    #     'time': datetime.utcnow().isoformat(),
+    #     'name': request.user.username,
+    #     'dealership': dealer_id,
+    #     'review': "This capstone project sucks.. It needs to be proofread.. I'm not a mindreader, I don't know how the lecturer intends for the parts to work together. Not a great motivator for using IBM cloud after this course is completed tbh.."
+    # }
 
-    json_payload['review'] = {
-        'time': datetime.utcnow().isoformat(),
-        'name': request.user.username,
-        'dealership': dealer_id,
-        'review': "This capstone project sucks.. It needs to be proofread.. I'm not a mindreader, I don't know how the lecturer intends for the parts to work together. Not a great motivator for using IBM cloud after this course is completed tbh.."
-    }
+    if request.method == 'POST':
 
-    resp = post_request(url, json_payload)
+        json_payload['review'] = {
+            'time': datetime.utcnow().isoformat(),
+            'name': request.user.username,
+            'dealership': dealer_id,
+            'car_year': car.year.strftime("%Y")
+        #     'review': "This capstone project sucks.. It needs to be proofread.. I'm not a mindreader, I don't know how the lecturer intends for the parts to work together. Not a great motivator for using IBM cloud after this course is completed tbh.."
+        }
 
-    return HttpResponse(resp)
+        resp = post_request(url, json_payload)
+
+        return HttpResponse(resp)
+
+    cars = CarModel.objects.filter(dealer_id=dealer_id)
+    dealership = get_dealers_from_cf(dealer_id)
+
+
+    context['cars'] = cars
+    context['dealer_id'] = dealer_id
+    context['dealer_name'] = dea
+
+    return render(request, 'djangoapp/add_review.html', context)

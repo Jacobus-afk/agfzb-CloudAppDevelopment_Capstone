@@ -57,13 +57,20 @@ def post_request(url, json_payload, **kwargs):
 # def get_dealers_from_cf(url, **kwargs):
 # - Call get_request() with specified arguments
 # - Parse JSON results into a CarDealer object list
-def get_dealers_from_cf(url, **kwargs):
+def get_dealers_from_cf(dealer_id=None):
+    url = "https://399ca718.eu-gb.apigw.appdomain.cloud/api/dealership"
     results = []
     # Call get_request with a URL parameter
-    json_result = get_request(url)
+    if dealer_id:
+        json_result = get_request(url, did=dealer_id)
+        return json_result["body"]["docs"][0]
+    else:
+        json_result = get_request(url)
+
     if json_result:
         # Get the row list in JSON as dealers
         dealers = json_result["body"]["rows"]
+
         # For each dealer object
         for dealer in dealers:
             # Get its content in `doc` object
@@ -104,7 +111,8 @@ def get_dealers_from_cf(url, **kwargs):
 # def get_dealer_by_id_from_cf(url, dealerId):
 # - Call get_request() with specified arguments
 # - Parse JSON results into a DealerView object list
-def get_dealer_reviews_from_cf(url, dealer_id):
+def get_dealer_reviews_from_cf(dealer_id):
+    url = "https://399ca718.eu-gb.apigw.appdomain.cloud/api/review"
     results = []
     json_result = get_request(url, dealerId=dealer_id)
     if json_result:
@@ -116,7 +124,7 @@ def get_dealer_reviews_from_cf(url, dealer_id):
             review_obj = DealerReview(**review)
             review_obj.sentiment = analyze_review_sentiments(review_obj.review)
             results.append(review_obj)
-            # print(review_obj.review)
+            # print(review_obj.sentiment)
     return results
 
 # Create an `analyze_review_sentiments` method to call Watson NLU and analyze text
